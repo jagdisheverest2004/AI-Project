@@ -162,25 +162,7 @@ const ChatInput = ({ onSendMessage, isLoading, disabled }) => {
         </Box>
       </Paper>
 
-      {/* Status Text */}
-      {isLoading && (
-        <Box
-          sx={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            mt: 1,
-          }}
-        >
-          <Typography
-            variant="caption"
-            sx={{ color: '#757575', fontStyle: 'italic' }}
-            className="animate-pulse"
-          >
-            Gemini is thinking...
-          </Typography>
-        </Box>
-      )}
+
     </Box>
   );
 };

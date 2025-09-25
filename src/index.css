@@ -54,11 +54,65 @@
 /* Message Bubble Styles */
 .message-bubble {
   position: relative;
-  transition: all 0.2s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: default;
 }
 
 .message-bubble:hover {
-  transform: translateY(-1px);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Enhanced Typography Styles */
+.ai-message-content {
+  font-family: 'Inter', 'Roboto', sans-serif;
+}
+
+.ai-message-content ul {
+  list-style-type: none;
+  position: relative;
+}
+
+.ai-message-content ul li::before {
+  content: '•';
+  color: #1976d2;
+  font-weight: bold;
+  position: absolute;
+  left: -16px;
+}
+
+.ai-message-content ol {
+  counter-reset: item;
+}
+
+.ai-message-content ol li {
+  counter-increment: item;
+  position: relative;
+}
+
+.ai-message-content ol li::before {
+  content: counter(item) '.';
+  color: #1976d2;
+  font-weight: 600;
+  position: absolute;
+  left: -20px;
+}
+
+/* Code-like formatting for technical terms */
+.ai-message-content strong {
+  background: linear-gradient(135deg, rgba(25, 118, 210, 0.1), rgba(245, 0, 87, 0.1));
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-weight: 600;
+}
+
+/* Highlight important sections */
+.message-highlight {
+  background: linear-gradient(135deg, #e3f2fd, #f3e5f5);
+  border-left: 4px solid #1976d2;
+  padding: 12px 16px;
+  margin: 8px 0;
+  border-radius: 0 8px 8px 0;
 }
 
 /* Chat Input Styles */
@@ -136,6 +190,59 @@
                  0.5em 0 0 currentColor;
   }
 }
+
+/* Typing Indicator */
+.typing-indicator {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 12px 16px;
+  background: #f5f5f5;
+  border-radius: 20px;
+  margin: 8px 0;
+}
+
+.typing-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #1976d2;
+  animation: typing-bounce 1.4s infinite ease-in-out;
+}
+
+.typing-dot:nth-child(1) { animation-delay: -0.32s; }
+.typing-dot:nth-child(2) { animation-delay: -0.16s; }
+
+@keyframes typing-bounce {
+  0%, 80%, 100% {
+    transform: scale(0.8);
+    opacity: 0.5;
+  }
+  40% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Message Status Indicators */
+.message-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.75rem;
+  color: #757575;
+  margin-top: 4px;
+}
+
+.status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+
+.status-sent { background-color: #4caf50; }
+.status-delivered { background-color: #2196f3; }
+.status-error { background-color: #f44336; }
 
 /* Gemini-like Gradient Background */
 .gemini-bg {

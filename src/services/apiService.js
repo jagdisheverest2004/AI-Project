@@ -6,6 +6,8 @@ class ApiService {
     this.baseUrl = API_BASE_URL;
   }
 
+  // ... constructor ...
+
   async sendMessage(message) {
     try {
       const response = await fetch(`${this.baseUrl}/question`, {
@@ -13,30 +15,59 @@ class ApiService {
         headers: {
           'Content-Type': 'application/json',
         },
-        // Change "message" to "question" to match the backend
         body: JSON.stringify({
-          question: message, // <-- CORRECTED KEY
-          timestamp: new Date().toISOString()
+          question: message,
         }),
       });
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      
+
       const data = await response.json();
+      
+      // Extract text from Gemini response structure
+      let extractedText = 'Sorry, I couldn\'t process your request.';
+      
+      if (data.candidates && 
+          data.candidates.length > 0 && 
+          data.candidates[0].content && 
+          data.candidates[0].content.parts && 
+          data.candidates[0].content.parts.length > 0) {
+        
+        extractedText = data.candidates[0].content.parts[0].text;
+      }
+
+      // Create properly structured AI message object
+      const aiMessage = {
+        id: `ai-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+        message: extractedText,
+        isUser: false,
+        timestamp: new Date().toISOString(),
+        metadata: {
+          modelVersion: data.modelVersion || 'unknown',
+          finishReason: data.candidates?.[0]?.finishReason || 'unknown',
+          tokenCount: data.usageMetadata?.totalTokenCount || 0
+        }
+      };
+
       return {
         success: true,
-        response: data.response || 'No response received', // <-- Ensure you get the 'response' field
-        timestamp: data.timestamp || new Date().toISOString()
+        aiMessage: aiMessage,
+        rawResponse: data // Keep raw response for debugging if needed
       };
     } catch (error) {
       console.error('API Service Error:', error);
       return {
         success: false,
         error: error.message || 'Failed to send message',
-        response: 'Sorry, I encountered an error while processing your request. Please try again.',
-        timestamp: new Date().toISOString()
+        aiMessage: {
+          id: `error-${Date.now()}`,
+          message: 'Sorry, I encountered an error while processing your request. Please try again.',
+          isUser: false,
+          timestamp: new Date().toISOString(),
+          isError: true
+        }
       };
     }
   }

@@ -19,6 +19,7 @@ import {
 } from '@mui/icons-material';
 import ChatMessage from './ChatMessage';
 import ChatInput from './ChatInput';
+import TypingIndicator from './TypingIndicator';
 import apiService from '../services/apiService';
 
 const Chat = () => {
@@ -59,12 +60,14 @@ const Chat = () => {
     setMessages([welcomeMessage]);
   }, []);
 
+  // ... other imports and component setup ...
+
   const handleSendMessage = async (messageText) => {
     if (!messageText.trim()) return;
 
-    // Add user message to chat
     const userMessage = {
-      id: Date.now().toString() + '-user',
+      // Use a temporary ID for the user's message for the key
+      id: `user-${Date.now()}`,
       message: messageText,
       isUser: true,
       timestamp: new Date().toISOString(),
@@ -75,31 +78,26 @@ const Chat = () => {
     setError('');
 
     try {
-      // Send to backend API
       const response = await apiService.sendMessage(messageText);
-      
+
       if (response.success) {
-        // Add AI response to chat
-        const aiMessage = {
-          id: Date.now().toString() + '-ai',
-          message: response.response,
-          isUser: false,
-          timestamp: response.timestamp,
-        };
-        setMessages(prev => [...prev, aiMessage]);
+        setMessages(prev => [...prev, response.aiMessage]);
       } else {
-        throw new Error(response.error);
+        // Add error message to chat if API call fails
+        setMessages(prev => [...prev, response.aiMessage]);
+        setError('Failed to get response from AI. Please try again.');
       }
     } catch (err) {
-      console.error('Chat Error:', err);
-      setError('Failed to get response. Please try again.');
+      console.error('Error sending message:', err);
+      setError('Network error. Please check your connection and try again.');
       
-      // Add error message to chat
+      // Add fallback error message
       const errorMessage = {
-        id: Date.now().toString() + '-error',
-        message: 'Sorry, I encountered an error while processing your request. Please try again.',
+        id: `error-${Date.now()}`,
+        message: 'Sorry, I encountered a network error. Please try again.',
         isUser: false,
         timestamp: new Date().toISOString(),
+        isError: true
       };
       setMessages(prev => [...prev, errorMessage]);
     } finally {
@@ -107,6 +105,7 @@ const Chat = () => {
     }
   };
 
+// ... the rest of the file is correct ...
   const handleRefresh = () => {
     setMessages([]);
     setError('');
@@ -253,8 +252,13 @@ const Chat = () => {
                   message={message.message}
                   isUser={message.isUser}
                   timestamp={message.timestamp}
+                  metadata={message.metadata}
+                  isError={message.isError}
                 />
               ))}
+              
+              {/* Show typing indicator when loading */}
+              {isLoading && <TypingIndicator />}
             </Box>
           )}
           <div ref={messagesEndRef} />
