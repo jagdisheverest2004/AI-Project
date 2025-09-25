@@ -49,15 +49,37 @@ const Chat = () => {
     checkBackendHealth();
   }, []);
 
-  // Add welcome message on first load
+  // Load chat history on first load
   useEffect(() => {
-    const welcomeMessage = {
-      id: 'welcome',
-      message: "Hello! I'm your AI assistant powered by Gemini. How can I help you today?",
-      isUser: false,
-      timestamp: new Date().toISOString(),
+    const loadChatHistory = async () => {
+      try {
+        const historyResponse = await apiService.getChatHistory();
+        if (historyResponse.success && historyResponse.history.length > 0) {
+          setMessages(historyResponse.history);
+        } else {
+          // Add welcome message if no history
+          const welcomeMessage = {
+            id: 'welcome',
+            message: "Hello! I'm your AI assistant. How can I help you today?",
+            isUser: false,
+            timestamp: new Date().toISOString(),
+          };
+          setMessages([welcomeMessage]);
+        }
+      } catch (error) {
+        console.error('Failed to load chat history:', error);
+        // Add welcome message on error
+        const welcomeMessage = {
+          id: 'welcome',
+          message: "Hello! I'm your AI assistant. How can I help you today?",
+          isUser: false,
+          timestamp: new Date().toISOString(),
+        };
+        setMessages([welcomeMessage]);
+      }
     };
-    setMessages([welcomeMessage]);
+    
+    loadChatHistory();
   }, []);
 
   // ... other imports and component setup ...
@@ -106,17 +128,32 @@ const Chat = () => {
   };
 
 // ... the rest of the file is correct ...
-  const handleRefresh = () => {
+  const handleRefresh = async () => {
     setMessages([]);
     setError('');
-    // Re-add welcome message
-    const welcomeMessage = {
-      id: 'welcome-' + Date.now(),
-      message: "Hello! I'm your AI assistant powered by Gemini. How can I help you today?",
-      isUser: false,
-      timestamp: new Date().toISOString(),
-    };
-    setMessages([welcomeMessage]);
+    setIsLoading(true);
+    
+    try {
+      // Reload chat history from backend
+      const historyResponse = await apiService.getChatHistory();
+      if (historyResponse.success && historyResponse.history.length > 0) {
+        setMessages(historyResponse.history);
+      } else {
+        // Add welcome message if no history
+        const welcomeMessage = {
+          id: 'welcome-' + Date.now(),
+          message: "Hello! I'm your AI assistant. How can I help you today?",
+          isUser: false,
+          timestamp: new Date().toISOString(),
+        };
+        setMessages([welcomeMessage]);
+      }
+    } catch (error) {
+      console.error('Failed to refresh chat:', error);
+      setError('Failed to refresh chat history');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const toggleTheme = () => {

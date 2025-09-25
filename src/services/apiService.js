@@ -26,30 +26,29 @@ class ApiService {
 
       const data = await response.json();
       
-      // Extract text from Gemini response structure
+      // Handle your backend's response format: { id, message, timestamp, user }
       let extractedText = 'Sorry, I couldn\'t process your request.';
       
-      if (data.candidates && 
-          data.candidates.length > 0 && 
-          data.candidates[0].content && 
-          data.candidates[0].content.parts && 
-          data.candidates[0].content.parts.length > 0) {
-        
-        extractedText = data.candidates[0].content.parts[0].text;
+      if (data.message) {
+        // Your backend returns the message directly in the 'message' field
+        extractedText = data.message;
       }
 
       // Create properly structured AI message object
       const aiMessage = {
-        id: `ai-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+        id: `ai-${data.id || Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
         message: extractedText,
         isUser: false,
-        timestamp: new Date().toISOString(),
+        timestamp: data.timestamp || new Date().toISOString(),
         metadata: {
-          modelVersion: data.modelVersion || 'unknown',
-          finishReason: data.candidates?.[0]?.finishReason || 'unknown',
-          tokenCount: data.usageMetadata?.totalTokenCount || 0
+          backendId: data.id,
+          responseTime: new Date().toISOString(),
+          source: 'backend-api'
         }
       };
+
+      console.log('AI Message:', aiMessage);
+      console.log('Raw API Response:', data);
 
       return {
         success: true,
@@ -86,9 +85,22 @@ class ApiService {
       }
 
       const data = await response.json();
+      
+      // Convert your backend's history format to frontend format
+      const formattedHistory = data.map(item => ({
+        id: `history-${item.id}`,
+        message: item.message,
+        isUser: item.user,
+        timestamp: item.timestamp,
+        metadata: {
+          backendId: item.id,
+          source: 'chat-history'
+        }
+      }));
+
       return {
         success: true,
-        history: data.history || []
+        history: formattedHistory
       };
     } catch (error) {
       console.error('Get History Error:', error);
