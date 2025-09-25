@@ -1,0 +1,100 @@
+/* App.css - Main application styles */
+.App {
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  font-family: 'Roboto', 'Segoe UI', 'Helvetica Neue', sans-serif;
+}
+
+/* Reset and base styles */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+#root {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Typography enhancements */
+.text-shadow {
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* Layout utilities */
+.full-height {
+  height: 100vh;
+}
+
+.flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Custom Material-UI overrides */
+.MuiPaper-root {
+  background-image: none !important;
+}
+
+.MuiAppBar-root {
+  backdrop-filter: blur(10px) !important;
+}
+
+/* Responsive design */
+@media (max-width: 600px) {
+  .App {
+    font-size: 14px;
+  }
+}
+
+/* Performance optimizations */
+.chat-container {
+  transform: translateZ(0);
+  will-change: scroll-position;
+}
+
+.message-bubble {
+  will-change: transform;
+}
+
+/* Accessibility improvements */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Focus indicators */
+.focusable:focus {
+  outline: 2px solid #1976d2;
+  outline-offset: 2px;
+}
+
+/* Loading states */
+.loading-shimmer {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
